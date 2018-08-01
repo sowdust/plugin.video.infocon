@@ -26,17 +26,21 @@ mode = args.get('mode', None)
 
 
 def build_url(query):
+
 	return base_url + '?' + urllib.urlencode(query)
 
 
 def log(s, debug_only=False, error=False):
+
     if DEBUG or not debug_only:
         xbmc.log('[%s] %s' % (NAME,s))
     if error:
         raise_error(s)
 
 
+# Scrapes links & titles from videos/folders list in a url
 def get_list(url):
+
     r = requests.get(url)
     if r.status_code != 200:
         log('Received staus %d calling url % s' % (r.status_code,url), error=True)
@@ -60,6 +64,7 @@ def get_list(url):
         return [links,names]
 
 
+# Given list of links and names, builds a menu based on links extensions
 def build_menu(current_url,links,names):
 
 	for link in links:
@@ -67,11 +72,9 @@ def build_menu(current_url,links,names):
 		file, ext = os.path.splitext(link)
 		entry_name = urllib.unquote(file)
 		itemURL = current_url + link
-		log(' ------------- ', debug_only=True)
 
 		# if it's a video file to be played
 		if ext.lower() in SUPPORTED_VIDEO_FILES:
-			# TODO: evaluate whether to do a head request to confirm mime type
 			log('creating a file list for %s' % itemURL, debug_only=True)
 			li = xbmcgui.ListItem(entry_name)
 			li.setProperty('isPlayable' , 'true')
@@ -86,11 +89,14 @@ def build_menu(current_url,links,names):
 			url = build_url({'mode': 'folder', 'foldername': entry_name, 'current_url' : itemURL })
 			log(url, debug_only=True)
 			xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=li, isFolder=True)
+
+		# otherwise it's an unsupported file
 		else:
 			log('nothing to do for %s' % entry_name, debug_only=True)
 			log('with extension %s \t url: %s' % (ext, itemURL), debug_only=True)
 
 	xbmcplugin.endOfDirectory(addon_handle)
+
 
 # TODO: add date
 def play_video(itemURL, title, date=''):
@@ -113,6 +119,7 @@ def play_video(itemURL, title, date=''):
 
 
 try:
+	# if it's the main view (/ folder)
 	if mode is None:
 		log('Inside main function, mode = None', debug_only=True)
 		url = build_url({'mode': 'folder', 'foldername': '/', 'current_url' : URL })
@@ -120,10 +127,6 @@ try:
 		li = xbmcgui.ListItem('/')
 		xbmcplugin.addDirectoryItem(handle=addon_handle, url=url,
 		listitem=li, isFolder=True)
-		#url = build_url({'mode': 'folder', 'foldername': 'Folder Two'})
-		#li = xbmcgui.ListItem('Folder Two', iconImage='DefaultFolder.png')
-		#xbmcplugin.addDirectoryItem(handle=addon_handle, url=url,
-		#listitem=li, isFolder=True)
 		xbmcplugin.endOfDirectory(addon_handle)
 
 	# if we are listing a directory content
@@ -136,11 +139,11 @@ try:
 		log('received %d links' % len(links), debug_only=True)
 		build_menu(current_url,links,names)
 
+	# play video mode
 	elif mode[0] == 'play_video':
 		log('Inside play_video mode', debug_only=True)
 		filename = args['filename'][0] 
 		itemURL = args['itemURL'][0]
-		# subURL
 		play_video(itemURL,filename)
 
 
