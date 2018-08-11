@@ -13,7 +13,7 @@
     <language>en</language>
     <platform>all</platform>
     <license></license>
-    <forum></forum>
+    <forum>https://forum.kodi.tv/showthread.php?tid=334522</forum>
     <website>http://www.infocon.org</website>
     <email></email>
     <source>https://github.com/sowdust/plugin.video.infocon</source>
@@ -27,3 +27,4 @@
     <screenshot>resources/screenshots/screenshot001.png</screenshot>
   </assets>
 </addon>
+
